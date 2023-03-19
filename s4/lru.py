@@ -38,9 +38,9 @@ class LRU(nn.Module):
     decode: bool = False
 
     lr = {
-        "diagonalised_A": 0.1,
-        "B_re": 0.1,
-        "B_im": 0.1,
+        "diagonalised_A": 0.5,
+        "B_re": 0.5,
+        "B_im": 0.5,
     }
 
     @nn.compact
@@ -51,22 +51,22 @@ class LRU(nn.Module):
 
         B_re = self.param(
             "B_re",
-            nn.initializers.normal(stddev=np.sqrt(2*self.H)),
+            nn.initializers.normal(stddev=1/np.sqrt(2*self.H)),
             (self.N, self.H)
         )
         B_im = self.param(
             "B_im",
-            nn.initializers.normal(stddev=np.sqrt(2*self.H)),
+            nn.initializers.normal(stddev=1/np.sqrt(2*self.H)),
             (self.N, self.H)
         )
         C_re = self.param(
             "C_re",
-            nn.initializers.normal(stddev=np.sqrt(self.N)),
+            nn.initializers.normal(stddev=1/np.sqrt(self.N)),
             (self.H, self.N)
         )
         C_im = self.param(
             "C_im",
-            nn.initializers.normal(stddev=np.sqrt(self.N)),
+            nn.initializers.normal(stddev=1/np.sqrt(self.N)),
             (self.H, self.N)
         )
         D = self.param(
