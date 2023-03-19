@@ -1,5 +1,5 @@
-dataset: mnist-classification
-layer: s4
+dataset: sin_noise
+layer: lru
 seed: 0
 
 model:
@@ -10,6 +10,7 @@ model:
   embedding: false
   layer:
     N: 64
+    H: 128
 
 train:
   epochs: 10

@@ -34,6 +34,14 @@ class LRU(nn.Module):
     r_max: float = 1.
     r_min: float = 0.
     max_phase: float = 6.28
+    l_max: int = 512
+    decode: bool = False
+
+    lr = {
+        "diagonalised_A": 0.1,
+        "B_re": 0.1,
+        "B_im": 0.1,
+    }
 
     @nn.compact
     def __call__(self, input_sequence):
