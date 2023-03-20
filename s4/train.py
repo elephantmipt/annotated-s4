@@ -129,7 +129,7 @@ def create_train_state(
     # tx = optax.adamw(learning_rate=lr, weight_decay=0.01)
 
     # Check that all special parameter names are actually parameters
-    extra_keys = set(lr_layer.keys()) - set(jax.tree_leaves(name_map(params)))
+    extra_keys = set(lr_layer.keys()) - set(jax.tree_util.tree_leaves(name_map(params)))
     assert (
         len(extra_keys) == 0
     ), f"Special params {extra_keys} do not correspond to actual params"

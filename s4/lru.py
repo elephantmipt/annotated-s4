@@ -17,7 +17,7 @@ def uniform_spectral_init(r_min=0., r_max=1., max_phase=6.28):
         diag_lambda = jnp.exp(-jnp.exp(nu_log) + 1j*jnp.exp(theta_log))
         gamma_log = jnp.log(jnp.sqrt(1 - jnp.abs(diag_lambda)**2))
 
-        return nu_log, theta_log, gamma_log
+        return {"nu_log": nu_log, "theta_log": theta_log, "gamma_log": gamma_log}
 
     return init
 
@@ -38,7 +38,9 @@ class LRU(nn.Module):
     decode: bool = False
 
     lr = {
-        "diagonalised_A": 0.5,
+        "nu_log": 0.5,
+        "theta_log": 0.5,
+        "gamma_log": 0.5,
         "B_re": 0.5,
         "B_im": 0.5,
     }
@@ -47,7 +49,7 @@ class LRU(nn.Module):
     def __call__(self, input_sequence):
         p = self.param("diagonalised_A", uniform_spectral_init(r_min=self.r_min, r_max=self.r_max, max_phase=self.max_phase), (self.N,))
 
-        nu_log, theta_log, gamma_log = p
+        nu_log, theta_log, gamma_log = p["nu_log"], p["theta_log"], p["gamma_log"]
 
         B_re = self.param(
             "B_re",
