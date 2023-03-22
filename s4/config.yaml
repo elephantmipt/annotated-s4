@@ -1,19 +1,19 @@
-dataset: cifar-classification
+dataset: sin
 layer: lru
 seed: 0
 
 model:
-  d_model: 512
-  n_layers: 6
-  dropout: 0.1
+  d_model: 128
+  n_layers: 4
+  dropout: 0.
   prenorm: true
   embedding: false
   layer:
-    N: 384
-    H: 512
+    N: 64
+    H: 128
 
 train:
-  epochs: 100
+  epochs: 10
   bsz: 128
   lr: 0.001
   lr_schedule: true

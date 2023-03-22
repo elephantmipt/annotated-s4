@@ -45,41 +45,45 @@ class LRU(nn.Module):
         "B_im": 0.5,
     }
 
-    @nn.compact
-    def __call__(self, input_sequence):
-        p = self.param("diagonalised_A", uniform_spectral_init(r_min=self.r_min, r_max=self.r_max, max_phase=self.max_phase), (self.N,))
+    def setup(self):
+        p = self.param("diagonalised_A",
+                       uniform_spectral_init(r_min=self.r_min, r_max=self.r_max, max_phase=self.max_phase), (self.N,))
 
-        nu_log, theta_log, gamma_log = p["nu_log"], p["theta_log"], p["gamma_log"]
+        self.nu_log, self.theta_log, self.gamma_log = p["nu_log"], p["theta_log"], p["gamma_log"]
 
-        B_re = self.param(
+        self.B_re = self.param(
             "B_re",
-            nn.initializers.normal(stddev=1/np.sqrt(2*self.H)),
+            nn.initializers.normal(stddev=1 / np.sqrt(2 * self.H)),
             (self.N, self.H)
         )
-        B_im = self.param(
+        self.B_im = self.param(
             "B_im",
-            nn.initializers.normal(stddev=1/np.sqrt(2*self.H)),
+            nn.initializers.normal(stddev=1 / np.sqrt(2 * self.H)),
             (self.N, self.H)
         )
-        C_re = self.param(
+        self.C_re = self.param(
             "C_re",
-            nn.initializers.normal(stddev=1/np.sqrt(self.N)),
+            nn.initializers.normal(stddev=1 / np.sqrt(self.N)),
             (self.H, self.N)
         )
-        C_im = self.param(
+        self.C_im = self.param(
             "C_im",
-            nn.initializers.normal(stddev=1/np.sqrt(self.N)),
+            nn.initializers.normal(stddev=1 / np.sqrt(self.N)),
             (self.H, self.N)
         )
-        D = self.param(
+        self.D = self.param(
             "D",
             nn.initializers.normal(),
             (self.H,)
         )
 
-        Lambda = jnp.exp(-jnp.exp(nu_log) + 1j*jnp.exp(theta_log))
-        B_norm = (B_re + 1j*B_im) * jnp.expand_dims(jnp.exp(theta_log), axis=-1)
-        C = C_re + 1j*C_im
+    def __call__(self, input_sequence):
+
+
+        Lambda = jnp.exp(-jnp.exp(self.nu_log) + 1j*jnp.exp(self.theta_log))
+
+        B_norm = (self.B_re + 1j*self.B_im) * jnp.expand_dims(jnp.exp(self.gamma_log), axis=-1)
+        C = self.C_re + 1j*self.C_im
 
         Lambda_elements = jnp.repeat(Lambda[None, ...], input_sequence.shape[0], axis=0)
         Bu_elements = jax.vmap(lambda u: B_norm @ u)(input_sequence)
@@ -87,6 +91,6 @@ class LRU(nn.Module):
 
         _, inner_states = jax.lax.associative_scan(binary_operator_diag, elements)
 
-        y = jax.vmap(lambda x, u: (C @ x).real + D * u)(inner_states, input_sequence)
+        y = jax.vmap(lambda x, u: (C @ x).real + self.D * u)(inner_states, input_sequence)
 
         return y
